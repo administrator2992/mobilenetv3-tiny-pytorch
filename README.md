@@ -1,27 +1,27 @@
-## YOLOV4-Tiny：You Only Look Once-Tiny目标检测模型在Pytorch当中的实现
+## YOLOV4-Tiny: Implementation of You Only Look Once-Tiny target detection model in Pytorch
 ---
 
-## 目录
-1. [仓库更新 Top News](#仓库更新)
-2. [相关仓库 Related code](#相关仓库)
-3. [性能情况 Performance](#性能情况)
-4. [所需环境 Environment](#所需环境)
-5. [文件下载 Download](#文件下载)
-6. [训练步骤 How2train](#训练步骤)
-7. [预测步骤 How2predict](#预测步骤)
-8. [评估步骤 How2eval](#评估步骤)
-9. [参考资料 Reference](#Reference)
+## Table of contents
+1. [Warehouse update Top News](#top-news)
+2. [Related warehouse Related code](#related-warehouses)
+3. [Performance Status](#performance)
+4. [Required Environment Environment](#required-environment)
+5. [File Download Download](#file-download)
+6. [Training Steps How2train](#training-steps)
+7. [Prediction step How2predict](#prediction-steps)
+8. [Evaluation Steps How2eval](#evaluation-steps)
+9. [Reference](#reference)
 
 ## Top News
-**`2022-04`**:**支持多GPU训练，新增各个种类目标数量计算，新增heatmap。**  
+**`2022-04`**:** Supports multi-GPU training, adds counting of number of targets for each category, adds heatmap.**  
 
-**`2022-03`**:**进行了大幅度的更新，修改了loss组成，使得分类、目标、回归loss的比例合适、支持step、cos学习率下降法、支持adam、sgd优化器选择、支持学习率根据batch_size自适应调整、新增图片裁剪。**
-BiliBili视频中的原仓库地址为：https://github.com/bubbliiiing/yolov4-tiny-pytorch/tree/bilibili
+**`2022-03`**:** Significantly updated, modified the composition of the loss, so that the proportion of classification, target, regression loss is appropriate, support for STEP, cos learning rate descent method, support for adam, sgd optimizer selection, support for adaptive adjustment of the learning rate according to the batch_size, new image cropping. **
+The original repository address in the BiliBili video is: https://github.com/bubbliiiing/yolov4-tiny-pytorch/tree/bilibili
 
-**`2021-10`**:**进行了大幅度的更新，增加了大量注释、增加了大量可调整参数、对代码的组成模块进行修改、增加fps、视频预测、批量预测等功能。**    
+**`2021-10`**:** Significantly updated, added a large number of comments, added a large number of adjustable parameters, modified the code's constituent modules, added fps, video prediction, batch prediction and other functions. **    
 
-## 相关仓库
-| 模型 | 路径 |
+## Related Warehouses
+| Models | Paths |
 | :----- | :----- |
 YoloV3 | https://github.com/bubbliiiing/yolo3-pytorch  
 Efficientnet-Yolo3 | https://github.com/bubbliiiing/efficientnet-yolo3-pytorch  
@@ -34,8 +34,8 @@ YoloX | https://github.com/bubbliiiing/yolox-pytorch
 YoloV7 | https://github.com/bubbliiiing/yolov7-pytorch
 YoloV7-tiny | https://github.com/bubbliiiing/yolov7-tiny-pytorch
 
-## 性能情况
-| 训练数据集 | 权值文件名称 | 测试数据集 | 输入图片大小 | mAP 0.5:0.95 | mAP 0.5 |
+## Performance
+| training dataset | weights file name | test dataset | input image size | mAP 0.5:0.95 | mAP 0.5 |
 | :-----: | :-----: | :------: | :------: | :------: | :-----: |
 | VOC07+12+COCO | [yolov4_tiny_weights_voc.pth](https://github.com/bubbliiiing/yolov4-tiny-pytorch/releases/download/v1.0/yolov4_tiny_weights_voc.pth) | VOC-Test07 | 416x416 | - | 77.8
 | VOC07+12+COCO | [yolov4_tiny_weights_voc_SE.pth](https://github.com/bubbliiiing/yolov4-tiny-pytorch/releases/download/v1.0/yolov4_tiny_weights_voc_SE.pth) | VOC-Test07 | 416x416 | - | 78.4
@@ -43,139 +43,138 @@ YoloV7-tiny | https://github.com/bubbliiiing/yolov7-tiny-pytorch
 | VOC07+12+COCO | [yolov4_tiny_weights_voc_ECA.pth](https://github.com/bubbliiiing/yolov4-tiny-pytorch/releases/download/v1.0/yolov4_tiny_weights_voc_ECA.pth) | VOC-Test07 | 416x416 | - | 77.6
 | COCO-Train2017 | [yolov4_tiny_weights_coco.pth](https://github.com/bubbliiiing/yolov4-tiny-pytorch/releases/download/v1.0/yolov4_tiny_weights_coco.pth) | COCO-Val2017 | 416x416 | 21.5 | 41.0
 
-## 所需环境
+## Required environment
 torch==1.2.0
 
-## 文件下载
-训练所需的各类权值均可在百度网盘中下载。    
-链接: https://pan.baidu.com/s/1ABR6lOd0_cs5_2DORrMSRw      
-提取码: iauv    
+## File Download
+All kinds of weights needed for training can be downloaded from Baidu.com.    
+Link: https://pan.baidu.com/s/1ABR6lOd0_cs5_2DORrMSRw      
+Extract code: iauv    
 
-VOC数据集下载地址如下，里面已经包括了训练集、测试集、验证集（与测试集一样），无需再次划分：  
-链接: https://pan.baidu.com/s/19Mw2u_df_nBzsC2lg20fQA    
-提取码: j5ge  
+The VOC dataset can be downloaded from the following address, which already includes the training set, test set and validation set (same as the test set), so there is no need to divide it again:  
+Link: https://pan.baidu.com/s/19Mw2u_df_nBzsC2lg20fQA    
+Extract code: j5ge
 
-## 训练步骤
-### a、训练VOC07+12数据集
-1. 数据集的准备   
-**本文使用VOC格式进行训练，训练前需要下载好VOC07+12的数据集，解压后放在根目录**  
+## Training steps
+### a. Training VOC07+12 dataset
+1. Preparation of dataset   
+**This paper uses VOC format for training, you need to download the VOC07+12 dataset before training, unzip it and put it in the root directory**.  
 
-2. 数据集的处理   
-修改voc_annotation.py里面的annotation_mode=2，运行voc_annotation.py生成根目录下的2007_train.txt和2007_val.txt。   
+2. Processing of the dataset   
+Modify the annotation_mode=2 in voc_annotation.py, run voc_annotation.py to generate 2007_train.txt and 2007_val.txt in the root directory.   
 
-3. 开始网络训练   
-train.py的默认参数用于训练VOC数据集，直接运行train.py即可开始训练。   
+3. Start network training   
+The default parameters of train.py are used to train the VOC dataset, run train.py directly to start training.   
 
-4. 训练结果预测   
-训练结果预测需要用到两个文件，分别是yolo.py和predict.py。我们首先需要去yolo.py里面修改model_path以及classes_path，这两个参数必须要修改。   
-**model_path指向训练好的权值文件，在logs文件夹里。   
-classes_path指向检测类别所对应的txt。**   
-完成修改后就可以运行predict.py进行检测了。运行后输入图片路径即可检测。   
+4. Prediction of training results   
+To predict the training results, we need to use two files, yolo.py and predict.py. First, we need to go to yolo.py to modify the model_path and classes_path, which must be modified.   
+**model_path points to the trained weights file, which is in the logs folder.   
+classes_path points to the txt corresponding to the detected categories.**   
+After completing the modifications you can run predict.py for detection. After running, enter the path of the image to be detected. 
 
-### b、训练自己的数据集
-1. 数据集的准备  
-**本文使用VOC格式进行训练，训练前需要自己制作好数据集，**    
-训练前将标签文件放在VOCdevkit文件夹下的VOC2007文件夹下的Annotation中。   
-训练前将图片文件放在VOCdevkit文件夹下的VOC2007文件夹下的JPEGImages中。   
+### b. Training your own dataset
+1. Preparation of dataset  
+**This paper uses VOC format for training, you need to make your own dataset before training, **    
+Before training, put the label file in Annotation under VOC2007 folder in VOCdevkit folder.   
+Put the image files in JPEGImages under VOC2007 folder in VOCdevkit folder before training.   
 
-2. 数据集的处理  
-在完成数据集的摆放之后，我们需要利用voc_annotation.py获得训练用的2007_train.txt和2007_val.txt。   
-修改voc_annotation.py里面的参数。第一次训练可以仅修改classes_path，classes_path用于指向检测类别所对应的txt。   
-训练自己的数据集时，可以自己建立一个cls_classes.txt，里面写自己所需要区分的类别。   
-model_data/cls_classes.txt文件内容为：      
+2 Processing of the dataset  
+After finishing the placement of the dataset, we need to utilize voc_annotation.py to obtain 2007_train.txt and 2007_val.txt for training.   
+Modify the parameters inside voc_annotation.py. For the first training you can modify only the classes_path, which is used to point to the txt corresponding to the detected classes.   
+When you train your own dataset, you can create a cls_classes.txt with the classes you want to distinguish.   
+The contents of the model_data/cls_classes.txt file are:      
 ```python
 cat
 dog
 ...
 ```
-修改voc_annotation.py中的classes_path，使其对应cls_classes.txt，并运行voc_annotation.py。  
+Modify the classes_path in voc_annotation.py to correspond to cls_classes.txt and run voc_annotation.py.
 
-3. 开始网络训练  
-**训练的参数较多，均在train.py中，大家可以在下载库后仔细看注释，其中最重要的部分依然是train.py里的classes_path。**  
-**classes_path用于指向检测类别所对应的txt，这个txt和voc_annotation.py里面的txt一样！训练自己的数据集必须要修改！**  
-修改完classes_path后就可以运行train.py开始训练了，在训练多个epoch后，权值会生成在logs文件夹中。  
+3. Start network training  
+**There are many parameters for training, they are all in train.py, you can read the comments carefully after downloading the library, the most important part is still the classes_path in train.py.  
+**classes_path is used to point to the txt corresponding to the detection category, which is the same as the txt inside voc_annotation.py! The dataset for training yourself must be modified! **  
+After modifying the classes_path you can run train.py to start training, after training multiple epochs the weights will be generated in the logs folder.  
 
-4. 训练结果预测  
-训练结果预测需要用到两个文件，分别是yolo.py和predict.py。在yolo.py里面修改model_path以及classes_path。  
-**model_path指向训练好的权值文件，在logs文件夹里。  
-classes_path指向检测类别所对应的txt。**  
-完成修改后就可以运行predict.py进行检测了。运行后输入图片路径即可检测。  
+4. Prediction of training results  
+Predicting training results requires two files, yolo.py and predict.py. In yolo.py, modify model_path and classes_path.  
+Inside yolo.py, modify model_path and classes_path. **model_path points to the trained weights file, which is in the logs folder.  
+classes_path points to the txt corresponding to the detected classes.**  
+After completing the modifications you can run predict.py for detection. After running it, enter the path of the image to be detected.
 
-## 预测步骤
-### a、使用预训练权重
-1. 下载完库后解压，在百度网盘下载yolo_weights.pth，放入model_data，运行predict.py，输入  
-```python
+## Prediction steps
+### a. Use pre-trained weights
+1. Unzip the library after downloading, download yolo_weights.pth from Baidu.com, put it into model_data, run predict.py, and enter  
+`` python
 img/street.jpg
 ```
-2. 在predict.py里面进行设置可以进行fps测试和video视频检测。  
-### b、使用自己训练的权重
-1. 按照训练步骤训练。  
-2. 在yolo.py文件里面，在如下部分修改model_path和classes_path使其对应训练好的文件；**model_path对应logs文件夹下面的权值文件，classes_path是model_path对应分的类**。  
-```python
+2. Setup inside predict.py can do fps test and video video detection.  
+### b. Use your own trained weights
+1. Follow the training steps.  
+2. Inside the yolo.py file, change model_path and classes_path to correspond to the trained files in the following section; **model_path corresponds to the weights file under the logs folder, and classes_path corresponds to the classes in model_path**.  
+``python
 _defaults = {
     #--------------------------------------------------------------------------#
-    #   使用自己训练好的模型进行预测一定要修改model_path和classes_path！
-    #   model_path指向logs文件夹下的权值文件，classes_path指向model_data下的txt
-    #   如果出现shape不匹配，同时要注意训练时的model_path和classes_path参数的修改
-    #--------------------------------------------------------------------------#
-    "model_path"        : 'model_data/yolov4_tiny_weights_coco.pth',
-    "classes_path"      : 'model_data/coco_classes.txt',
+    # Use your own trained model for prediction be sure to modify model_path and classes_path!
+    # model_path points to the weights file in the logs folder, and classes_path points to the txt in model_data.
+    # If there is a shape mismatch, also note that the model_path and classes_path parameters were changed during training.
+    # --------------------------------------------------------------------------#
+    "model_path" : 'model_data/yolov4_tiny_weights_coco.pth',
+    "classes_path" : 'model_data/coco_classes.txt',
     #---------------------------------------------------------------------#
-    #   anchors_path代表先验框对应的txt文件，一般不修改。
-    #   anchors_mask用于帮助代码找到对应的先验框，一般不修改。
-    #---------------------------------------------------------------------#
-    "anchors_path"      : 'model_data/yolo_anchors.txt',
-    "anchors_mask"      : [[3,4,5], [1,2,3]],
+    # anchors_path represents the txt file corresponding to the a priori box, which is generally not modified.
+    # anchors_mask is used to help the code find the corresponding a priori box, generally not modified.
+    # ---------------------------------------------------------------------#
+    "anchors_mask" : [[3,4,5], [1,2,3]], ...
     #-------------------------------#
-    #   所使用的注意力机制的类型
-    #   phi = 0为不使用注意力机制
-    #   phi = 1为SE
-    #   phi = 2为CBAM
-    #   phi = 3为ECA
-    #-------------------------------#
+    # Type of attention mechanism used
+    # phi = 0 for no attention mechanism used
+    # phi = 1 for SE
+    # phi = 2 for CBAM
+    # phi = 3 for ECA
+    # -------------------------------#
     "phi"               : 0,  
     #---------------------------------------------------------------------#
-    #   输入图片的大小，必须为32的倍数。
+    # Enter the size of the image, must be a multiple of 32.
+    # ---------------------------------------------------------------------#
+    "input_shape" : [416, 416].
     #---------------------------------------------------------------------#
-    "input_shape"       : [416, 416],
+    # Only prediction frames with scores greater than the confidence level will be retained
     #---------------------------------------------------------------------#
-    #   只有得分大于置信度的预测框会被保留下来
+    "confidence" : 0.5, ##
     #---------------------------------------------------------------------#
-    "confidence"        : 0.5,
+    # nms_iou size used for non-great suppression
     #---------------------------------------------------------------------#
-    #   非极大抑制所用到的nms_iou大小
+    "nms_iou" : 0.3, #
     #---------------------------------------------------------------------#
-    "nms_iou"           : 0.3,
-    #---------------------------------------------------------------------#
-    #   该变量用于控制是否使用letterbox_image对输入图像进行不失真的resize，
-    #   在多次测试后，发现关闭letterbox_image直接resize的效果更好
+    # This variable is used to control whether or not to use letterbox_image to resize the input image without distortion.
+    # After several tests, it was found that turning off letterbox_image directly resizes the image better.
     #---------------------------------------------------------------------#
     "letterbox_image"   : False,
     #-------------------------------#
-    #   是否使用Cuda
-    #   没有GPU可以设置成False
+    # Whether to use Cuda
+    # Set to False if you don't have a GPU.
     #-------------------------------#
     "cuda"              : True,
 }
 ```
-3. 运行predict.py，输入  
+3. Run predict.py and type  
 ```python
 img/street.jpg
 ```
-4. 在predict.py里面进行设置可以进行fps测试和video视频检测。  
+4. Inside predict.py, you can set up fps testing and video detection.  
 
-## 评估步骤 
-### a、评估VOC07+12的测试集
-1. 本文使用VOC格式进行评估。VOC07+12已经划分好了测试集，无需利用voc_annotation.py生成ImageSets文件夹下的txt。
-2. 在yolo.py里面修改model_path以及classes_path。**model_path指向训练好的权值文件，在logs文件夹里。classes_path指向检测类别所对应的txt。**  
-3. 运行get_map.py即可获得评估结果，评估结果会保存在map_out文件夹中。
+## Evaluation steps 
+### a. Evaluate the VOC07+12 test set
+1. In this paper, we use VOC format for evaluation, VOC07+12 has been divided into test sets, no need to utilize voc_annotation.py to generate the txt under ImageSets folder. 2.
+2. modify model_path as well as classes_path inside yolo.py. **model_path points to the trained weights file, in the logs folder. classes_path points to the txt corresponding to the test category. **  
+3. Run get_map.py to get the evaluation results, which are saved in the map_out folder.
 
-### b、评估自己的数据集
-1. 本文使用VOC格式进行评估。  
-2. 如果在训练前已经运行过voc_annotation.py文件，代码会自动将数据集划分成训练集、验证集和测试集。如果想要修改测试集的比例，可以修改voc_annotation.py文件下的trainval_percent。trainval_percent用于指定(训练集+验证集)与测试集的比例，默认情况下 (训练集+验证集):测试集 = 9:1。train_percent用于指定(训练集+验证集)中训练集与验证集的比例，默认情况下 训练集:验证集 = 9:1。
-3. 利用voc_annotation.py划分测试集后，前往get_map.py文件修改classes_path，classes_path用于指向检测类别所对应的txt，这个txt和训练时的txt一样。评估自己的数据集必须要修改。
-4. 在yolo.py里面修改model_path以及classes_path。**model_path指向训练好的权值文件，在logs文件夹里。classes_path指向检测类别所对应的txt。**  
-5. 运行get_map.py即可获得评估结果，评估结果会保存在map_out文件夹中。
+### b. Evaluate your own dataset
+1. This article uses the VOC format for evaluation.  
+2. If you have run the voc_annotation.py file before training, the code will automatically divide the dataset into training set, validation set and test set. If you want to modify the ratio of the test set, you can modify the trainval_percent under the voc_annotation.py file. trainval_percent is used to specify the ratio of (training set + validation set) to the test set, by default (training set + validation set):test set = 9:1. train_percent is used to specify the ratio of training set to validation set in (training set + validation set), by default training set:validation set = 9:1.
+3. After dividing the test set using voc_annotation.py, go to the get_map.py file and modify classes_path. classes_path is used to point to the txt corresponding to the detection category, which is the same as the txt used for training. Evaluating your own dataset must be modified.
+4. Modify model_path and classes_path in yolo.py. **model_path points to the trained weights file in the logs folder. classes_path points to the txt that corresponds to the detected category.  
+5. Run get_map.py to get the evaluation results, which are saved in the map_out folder.
 
 ## Reference
 https://github.com/qqwweee/keras-yolo3/  
