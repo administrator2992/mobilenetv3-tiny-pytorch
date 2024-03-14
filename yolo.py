@@ -29,7 +29,7 @@ class YOLO(object):
         "model_path"        : 'model_data/yolov4_tiny_weights_coco.pth',
         "classes_path"      : 'model_data/coco_classes.txt',
         #---------------------------------------------------------------------#
-        #   backbone        darknet, mobilenetv3large, mobilenetv3small
+        #   backbone        mobilenetv3large, mobilenetv3small
         #---------------------------------------------------------------------#
         "backbone"            : 'mobilenetv3large',
         #---------------------------------------------------------------------#

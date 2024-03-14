@@ -1,4 +1,4 @@
-## YOLOV4-Tiny: Implementation of You Only Look Once-Tiny target detection model in Pytorch
+## MobileNetV3 YOLOv4-Tiny: Implementation of You Only Look Once-Tiny MobileNetV3 backbone target detection model in Pytorch
 ---
 
 ## Table of contents
@@ -13,7 +13,7 @@
 9. [Reference](#reference)
 
 ## Top News
-**`2024-03`**;** Added mobilenetv3 backbone (Testing).**
+**`2024-03`**;** Added mobilenetv3 backbone (Large & Small).**
 
 **`2022-04`**:** Supports multi-GPU training, adds counting of number of targets for each category, adds heatmap.**  
 
@@ -30,6 +30,7 @@ Efficientnet-Yolo3 | https://github.com/bubbliiiing/efficientnet-yolo3-pytorch
 YoloV4 | https://github.com/bubbliiiing/yolov4-pytorch
 YoloV4-tiny | https://github.com/bubbliiiing/yolov4-tiny-pytorch
 Mobilenet-Yolov4 | https://github.com/bubbliiiing/mobilenet-yolov4-pytorch
+MobileNetV3 YOLOv4-Tiny | https://github.com/administrator2992/mobilenetv3-tiny-pytorch
 YoloV5-V5.0 | https://github.com/bubbliiiing/yolov5-pytorch
 YoloV5-V6.1 | https://github.com/bubbliiiing/yolov5-v6.1-pytorch
 YoloX | https://github.com/bubbliiiing/yolox-pytorch

@@ -93,9 +93,11 @@ class YoloBody(nn.Module):
         if backbone == "mobilenetv3large":
             self.backbone       = MobileNetV3Large(pretrained=pretrained)
             in_filter           = [160, 240]
+            phi_feat            = [112, 160]
         elif backbone == "mobilenetv3small":
             self.backbone       = MobileNetV3Small(pretrained=pretrained)
             in_filter           = [96, 168]
+            phi_feat            = [40, 96]
 
         self.conv_for_P5    = BasicConv(in_filter[0],256,1)
         self.yolo_headP5    = yolo_head([512, len(anchors_mask[0]) * (5 + num_classes)],256)
@@ -104,16 +106,12 @@ class YoloBody(nn.Module):
         self.yolo_headP4    = yolo_head([256, len(anchors_mask[1]) * (5 + num_classes)],in_filter[1])
 
         if 1 <= self.phi and self.phi <= 4:
-            self.feat1_att      = attention_block[self.phi - 1](256)
-            self.feat2_att      = attention_block[self.phi - 1](512)
+            self.feat1_att      = attention_block[self.phi - 1](phi_feat[0])
+            self.feat2_att      = attention_block[self.phi - 1](phi_feat[1])
             self.upsample_att   = attention_block[self.phi - 1](128)
 
     def forward(self, x):
-        #---------------------------------------------------#
-        #   生成CSPdarknet53_tiny的主干模型
-        #   feat1的shape为26,26,256
-        #   feat2的shape为13,13,512
-        #   
+        #---------------------------------------------------#   
         #   MobileNetV3-Large
         #   feat1: 26,26,112
         #   feat2: 13,13,160
@@ -127,20 +125,20 @@ class YoloBody(nn.Module):
             feat1 = self.feat1_att(feat1)
             feat2 = self.feat2_att(feat2)
 
-        # 13,13,512 -> 13,13,256
+        # 13,13,160/96 -> 13,13,256
         P5 = self.conv_for_P5(feat2)
-        # 13,13,256 -> 13,13,512 -> 13,13,255
+        # 13,13,256 -> 13,13,160/96 -> 13,13,255
         out0 = self.yolo_headP5(P5)
         # print(out0.size())
         # 13,13,256 -> 13,13,128 -> 26,26,128
         P5_Upsample = self.upsample(P5)
         
-        # 26,26,256 + 26,26,128 -> 26,26,384
+        # 26,26,112/40 + 26,26,128 -> 26,26,240/168
         if 1 <= self.phi and self.phi <= 4:
             P5_Upsample = self.upsample_att(P5_Upsample)
         P4 = torch.cat([P5_Upsample,feat1],axis=1)
 
-        # 26,26,384 -> 26,26,256 -> 26,26,255
+        # 26,26,240/168 -> 26,26,256 -> 26,26,255
         out1 = self.yolo_headP4(P4)
         
         return out0, out1

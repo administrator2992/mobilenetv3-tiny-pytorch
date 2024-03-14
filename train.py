@@ -107,7 +107,7 @@ if __name__ == "__main__":
     #----------------------------------------------------------------------------------------------------------------------------#
     model_path      = ''
     #------------------------------------------------------#
-    #   backbone        [darknet], mobilenetv3large, mobilenetv3small
+    #   backbone        mobilenetv3large, mobilenetv3small
     #------------------------------------------------------#
     backbone        = 'mobilenetv3large'
     #   input_shape     输入的shape大小，一定要是32的倍数
