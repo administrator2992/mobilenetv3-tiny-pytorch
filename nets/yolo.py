@@ -2,9 +2,32 @@ import torch
 import torch.nn as nn
 
 from nets.CSPdarknet53_tiny import darknet53_tiny
+from nets.mobilenet_v3 import mobilenet_v3
 from nets.attention import cbam_block, eca_block, se_block, CA_Block
 
 attention_block = [se_block, cbam_block, eca_block, CA_Block]
+
+class MobileNetV3Large(nn.Module):
+    def __init__(self, pretrained=False):
+        super(MobileNetV3Large, self).__init__()
+        self.model = mobilenet_v3(pretrained=pretrained, mb_type='large')
+
+    def forward(self, x):
+        x = self.model.features[:7](x)
+        out4 = self.model.features[7:13](x)
+        out5 = self.model.features[13:16](out4)
+        return out4, out5
+
+class MobileNetV3Small(nn.Module):
+    def __init__(self, pretrained=False):
+        super(MobileNetV3Small, self).__init__()
+        self.model = mobilenet_v3(pretrained=pretrained, mb_type='small')
+
+    def forward(self, x):
+        x = self.model.features[:4](x)
+        out4 = self.model.features[4:7](x)
+        out5 = self.model.features[7:12](out4)
+        return out4, out5
 
 #-------------------------------------------------#
 #   卷积块 -> 卷积 + 标准化 + 激活函数
@@ -53,12 +76,20 @@ def yolo_head(filters_list, in_filters):
 #   yolo_body
 #---------------------------------------------------#
 class YoloBody(nn.Module):
-    def __init__(self, anchors_mask, num_classes, phi=0, pretrained=False):
+    def __init__(self, anchors_mask, num_classes, phi=0, pretrained=False, backbone="darknet"):
         super(YoloBody, self).__init__()
         self.phi            = phi
-        self.backbone       = darknet53_tiny(pretrained)
+        if backbone == "darknet":
+            self.backbone       = darknet53_tiny(pretrained)
+            in_filter           = 512
+        elif backbone == "mobilenetv3large":
+            self.backbone       = MobileNetV3Large(pretrained=pretrained)
+            in_filter           = 160
+        elif backbone == "mobilenetv3small":
+            self.backbone       = MobileNetV3Small(pretrained=pretrained)
+            in_filter           = 96
 
-        self.conv_for_P5    = BasicConv(512,256,1)
+        self.conv_for_P5    = BasicConv(in_filter,256,1)
         self.yolo_headP5    = yolo_head([512, len(anchors_mask[0]) * (5 + num_classes)],256)
 
         self.upsample       = Upsample(256,128)
@@ -74,6 +105,14 @@ class YoloBody(nn.Module):
         #   生成CSPdarknet53_tiny的主干模型
         #   feat1的shape为26,26,256
         #   feat2的shape为13,13,512
+        #   
+        #   MobileNetV3-Large
+        #   feat1: 26,26,112
+        #   feat2: 13,13,160
+        # 
+        #   MobileNetV3-Small
+        #   feat1: 26,26,40
+        #   feat2: 13,13,96
         #---------------------------------------------------#
         feat1, feat2 = self.backbone(x)
         if 1 <= self.phi and self.phi <= 4:

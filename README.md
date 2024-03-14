@@ -13,6 +13,8 @@
 9. [Reference](#reference)
 
 ## Top News
+**`2024-03`**;** Added mobilenetv3 backbone (Testing).**
+
 **`2022-04`**:** Supports multi-GPU training, adds counting of number of targets for each category, adds heatmap.**  
 
 **`2022-03`**:** Significantly updated, modified the composition of the loss, so that the proportion of classification, target, regression loss is appropriate, support for STEP, cos learning rate descent method, support for adam, sgd optimizer selection, support for adaptive adjustment of the learning rate according to the batch_size, new image cropping. **
@@ -120,6 +122,10 @@ _defaults = {
     # --------------------------------------------------------------------------#
     "model_path" : 'model_data/yolov4_tiny_weights_coco.pth',
     "classes_path" : 'model_data/coco_classes.txt',
+    #---------------------------------------------------------------------#
+    #   backbone        darknet, mobilenetv3large, mobilenetv3small
+    #---------------------------------------------------------------------#
+    "backbone"            : 'mobilenetv3large',
     #---------------------------------------------------------------------#
     # anchors_path represents the txt file corresponding to the a priori box, which is generally not modified.
     # anchors_mask is used to help the code find the corresponding a priori box, generally not modified.

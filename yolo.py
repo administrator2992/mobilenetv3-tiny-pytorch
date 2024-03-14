@@ -29,6 +29,10 @@ class YOLO(object):
         "model_path"        : 'model_data/yolov4_tiny_weights_coco.pth',
         "classes_path"      : 'model_data/coco_classes.txt',
         #---------------------------------------------------------------------#
+        #   backbone        darknet, mobilenetv3large, mobilenetv3small
+        #---------------------------------------------------------------------#
+        "backbone"            : 'mobilenetv3large',
+        #---------------------------------------------------------------------#
         #   anchors_path代表先验框对应的txt文件，一般不修改。
         #   anchors_mask用于帮助代码找到对应的先验框，一般不修改。
         #---------------------------------------------------------------------#
@@ -106,7 +110,7 @@ class YOLO(object):
         #---------------------------------------------------#
         #   建立yolo模型，载入yolo模型的权重
         #---------------------------------------------------#
-        self.net    = YoloBody(self.anchors_mask, self.num_classes, self.phi)
+        self.net    = YoloBody(self.anchors_mask, self.num_classes, self.phi, self.backbone)
         device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.net.load_state_dict(torch.load(self.model_path, map_location=device))
         self.net    = self.net.eval()

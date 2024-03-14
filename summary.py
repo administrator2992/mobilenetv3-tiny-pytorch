@@ -12,9 +12,10 @@ if __name__ == "__main__":
     anchors_mask    = [[3, 4, 5], [1, 2, 3]]
     num_classes     = 80
     phi             = 0
+    backbone        = 'mobilenetv3large'
     
     device  = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    m       = YoloBody(anchors_mask, num_classes, phi=phi).to(device)
+    m       = YoloBody(anchors_mask, num_classes, phi=phi, backbone=backbone).to(device)
     summary(m, (3, input_shape[0], input_shape[1]))
     
     dummy_input     = torch.randn(1, 3, input_shape[0], input_shape[1]).to(device)
