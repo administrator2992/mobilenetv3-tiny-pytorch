@@ -131,7 +131,7 @@ class YoloBody(nn.Module):
         P5 = self.conv_for_P5(feat2)
         # 13,13,256 -> 13,13,512 -> 13,13,255
         out0 = self.yolo_headP5(P5)
-
+        print(out0.size())
         # 13,13,256 -> 13,13,128 -> 26,26,128
         P5_Upsample = self.upsample(P5)
         print(P5_Upsample.size())
