@@ -134,13 +134,13 @@ class YoloBody(nn.Module):
 
         # 13,13,256 -> 13,13,128 -> 26,26,128
         P5_Upsample = self.upsample(P5)
+        print(P5_Upsample.size())
         # 26,26,256 + 26,26,128 -> 26,26,384
         if 1 <= self.phi and self.phi <= 4:
             P5_Upsample = self.upsample_att(P5_Upsample)
         P4 = torch.cat([P5_Upsample,feat1],axis=1)
 
         # 26,26,384 -> 26,26,256 -> 26,26,255
-        print(P4.size())
         out1 = self.yolo_headP4(P4)
         
         return out0, out1
