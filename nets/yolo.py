@@ -87,7 +87,7 @@ def yolo_head(filters_list, in_filters):
 #   yolo_body
 #---------------------------------------------------#
 class YoloBody(nn.Module):
-    def __init__(self, anchors_mask, num_classes, phi=0, pretrained=False, backbone="mobilenetv3large"):
+    def __init__(self, anchors_mask, num_classes, phi=0, backbone="mobilenetv3large", pretrained=False):
         super(YoloBody, self).__init__()
         self.phi            = phi
         if backbone == "mobilenetv3large":
